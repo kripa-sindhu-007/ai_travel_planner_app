@@ -21,7 +21,7 @@ export default function Login() {
             fontSize: 30,
             fontFamily: "roboto-bold",
             textAlign: "center",
-            marginTop: 20,
+            marginTop: 10,
           }}
         >
           AI Travel Planner
@@ -62,7 +62,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "white",
-    marginTop: -20,
+    marginTop: -50,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     height: "100%",
@@ -73,5 +73,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     borderRadius: 99,
     marginTop: "20%",
+    marginTop: 15,
   },
 });
