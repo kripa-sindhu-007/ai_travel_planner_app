@@ -51,3 +51,7 @@ The **AI Travel Planner App** is an Android-based application designed to make t
 1. Clone the repository:
    ```bash
    git clone https://github.com/kripa-sindhu-007/travel_app.git
+
+## Project Demo
+
+   https://youtu.be/_K4NKg6W_nI?si=sYFmFEc2gSUNIBjx
