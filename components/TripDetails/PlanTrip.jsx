@@ -58,8 +58,12 @@ const fetchActivityImage = async (activity) => {
   }
 };
 const PlanTrip = ({ details }) => {
-  if (!details) {
-    return null;
+  if (!details || Object.keys(details).length === 0) {
+    return (
+      <View style={styles.noDetailsContainer}>
+        <Text style={styles.noDetailsText}>Daily plan details are not available for this trip.</Text>
+      </View>
+    );
   }
 
   const sortedDays = Object.keys(details).sort((a, b) => {
@@ -184,6 +188,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  noDetailsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    marginTop: 20,
+  },
+  noDetailsText: {
+    fontSize: 16,
+    color: '#555',
   },
 });
 

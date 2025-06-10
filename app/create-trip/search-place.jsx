@@ -1,4 +1,4 @@
-import { View, Text, TextInput, FlatList, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, FlatList, TouchableOpacity, ToastAndroid, ActivityIndicator } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { CreateTripContext } from "./../../context/CreateTripContext";
@@ -11,6 +11,7 @@ export default function SearchPlace() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({
@@ -26,25 +27,40 @@ export default function SearchPlace() {
 
   const searchPlaces = async (query) => {
     if (query.length > 2) {
+      setIsLoading(true);
       try {
         const response = await fetch(
           `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${MAPTILER_API_KEY}`
         );
         const text = await response.text(); // Get the raw response text
-        console.log("Raw API response:", text); // Log the raw response
+        // console.log("Raw API response:", text); // Keep for debugging if needed
+
+        if (!response.ok) {
+          console.error("API request failed:", response.status, text);
+          ToastAndroid.show(`Error fetching places: ${response.status}`, ToastAndroid.LONG);
+          setSearchResults([]); // Clear previous results
+          return;
+        }
         
         try {
           const data = JSON.parse(text); // Try to parse the JSON
-          setSearchResults(data.features);
+          setSearchResults(data.features || []); // Ensure searchResults is an array
         } catch (parseError) {
           console.error("JSON parse error:", parseError);
           console.log("Response that caused the error:", text);
+          ToastAndroid.show("Error reading place data. Please try again.", ToastAndroid.LONG);
+          setSearchResults([]); // Clear results on parse error
         }
       } catch (error) {
         console.error("Error searching places:", error);
+        ToastAndroid.show("Network error or failed to search for places. Please check your connection and try again.", ToastAndroid.LONG);
+        setSearchResults([]); // Clear results on network or other errors
+      } finally {
+        setIsLoading(false);
       }
     } else {
       setSearchResults([]);
+      setIsLoading(false); // Also set loading to false if query is too short
     }
   };
   const handlePlaceSelect = (place) => {
@@ -87,6 +103,7 @@ export default function SearchPlace() {
           padding: 10,
         }}
       />
+      {isLoading && <ActivityIndicator size="small" color="#0000ff" style={{ marginTop: 10 }} />}
       <FlatList
         data={searchResults}
         keyExtractor={(item) => item.id}

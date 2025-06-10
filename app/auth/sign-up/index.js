@@ -89,7 +89,7 @@ export default function SignUp() {
           }}
           placeholder="Enter Full Name"
           placeholderTextColor="#a0a0a0"
-          onChangeText={(val) => console.log(val)} // Keep functional dependency here
+          onChangeText={(val) => setFullName(val)} // Keep functional dependency here
         />
       </View>
       {/* Email Field */}

@@ -131,14 +131,18 @@ export default function TripDetails() {
       <Image source={imageUrl ? { uri: imageUrl } : require('./../../assets/images/pl.jpg')} style={styles.image} />
       <View style={styles.detailsContainer}>
         <Text style={styles.locationText}>
-          {tripDetails.tripPlan?.trip_details?.destination}
+          {tripDetails.tripPlan?.trip_details?.destination || 'Destination details not available'}
         </Text>
-        <Text style={styles.dates}>
-          📅 {moment(tripData.startDate).format("MMM Do")} - {" "}
-          {moment(tripData.endDate).format("MMM Do, YYYY")}
-        </Text>
+        {tripData?.startDate && tripData?.endDate ? (
+          <Text style={styles.dates}>
+            📅 {moment(tripData.startDate).format("MMM Do")} - {" "}
+            {moment(tripData.endDate).format("MMM Do, YYYY")}
+          </Text>
+        ) : (
+          <Text style={styles.dates}>📅 Dates not specified</Text>
+        )}
         <Text style={styles.travelers}>
-          🚌 {tripData.traveler.title} - {tripData.traveler.desc}
+          🚌 {tripData?.traveler?.title || 'Traveler details not available'} {tripData?.traveler?.desc ? `- ${tripData.traveler.desc}` : ''}
         </Text>
       </View>
 

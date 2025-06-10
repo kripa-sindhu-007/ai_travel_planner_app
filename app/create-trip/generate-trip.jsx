@@ -1,4 +1,4 @@
-import { View, Text, Image } from 'react-native'
+import { View, Text, Image, ToastAndroid } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { CreateTripContext } from '../../context/CreateTripContext';
 import { AI_PROMPT } from '../../constants/Options';
@@ -16,31 +16,48 @@ export default function GenerateTrip() {
     },[])
     const GenerateAiTrip =async ()=>{
         setLoading(true);
-        const FINAL_PROMPT=AI_PROMPT.replace('{location}',tripData?.locationInfo?.name)
-        .replace('{totalDays}',tripData.totalNoOfDays)
-        .replace('{totalNight}',tripData.totalNoOfDays-1)
-        .replace('{traveler}',tripData.traveler?.title)
-        .replace('{budget}',tripData.budget)
-        .replace('{totalDays}',tripData.totalNoOfDays)
-        .replace('{totalNight}',tripData.totalNoOfDays-1)
+        try {
+            const FINAL_PROMPT=AI_PROMPT.replace('{location}',tripData?.locationInfo?.name)
+            .replace('{totalDays}',tripData.totalNoOfDays)
+            .replace('{totalNight}',tripData.totalNoOfDays-1)
+            .replace('{traveler}',tripData.traveler?.title)
+            .replace('{budget}',tripData.budget)
+            .replace('{totalDays}',tripData.totalNoOfDays)
+            .replace('{totalNight}',tripData.totalNoOfDays-1)
 
-        console.log(FINAL_PROMPT);
-        const result = await chatSession.sendMessage(FINAL_PROMPT);
-        console.log(result.response.text());
-        const tripResp =JSON.parse(result.response.text());
-         setLoading(false)
-        const docId=(Date.now()).toString();
-        const result_ = await setDoc(doc(db,'UserTrips',docId),{
-            userEmail:user.email,
-            tripPlan:tripResp,//ai result
-            tripData:JSON.stringify(tripData),
-            //user selec data
-            docId:docId
-         })
-        
-            router.push('(tabs)/mytrip')
+            console.log(FINAL_PROMPT);
+            const result = await chatSession.sendMessage(FINAL_PROMPT);
+            const rawResponseText = result.response.text();
+            console.log(rawResponseText);
 
-        
+            let tripResp;
+            try {
+                tripResp = JSON.parse(rawResponseText);
+                // If parsing is successful, proceed to save and navigate
+                // setLoading(false) is called in finally
+                const docId = (Date.now()).toString();
+                await setDoc(doc(db, 'UserTrips', docId), {
+                    userEmail: user.email,
+                    tripPlan: tripResp, // AI result
+                    tripData: JSON.stringify(tripData), // user selected data
+                    docId: docId
+                });
+                router.push('(tabs)/mytrip');
+            } catch (e) {
+                console.error("Failed to parse AI response:", e);
+                console.error("Raw AI response text:", rawResponseText); // Log the problematic text
+                ToastAndroid.show("Sorry, we encountered an issue generating your trip. The AI response might have been unclear. Please try adjusting your criteria or try again later.", ToastAndroid.LONG);
+                // setLoading(false) is called in finally
+                // Optional: Navigate back or allow retry
+                // router.back(); // Or to a specific step
+            }
+        } catch (error) {
+            // This catches errors from chatSession.sendMessage or other issues before JSON parsing
+            console.error("Error generating trip:", error);
+            ToastAndroid.show("Sorry, an unexpected error occurred while generating your trip. Please try again later.", ToastAndroid.LONG);
+        } finally {
+            setLoading(false);
+        }
     }
   return (
     <View style={{
